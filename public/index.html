@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+    <head> 
+        <title>
+            Idea Generator
+        </title>
+
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=Permanent+Marker&display=swap" rel="stylesheet">
+
+        <style>
+
+            body {
+                background: #ececec;
+                margin: 0;
+            }
+
+            .wrapper {
+                height: 100vh;
+                /*This part is important for centering*/
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-direction: column;
+            }
+            
+            #haveYouTried {
+                font-family: 'Permanent Marker', cursive;
+                font-size: 5rem;
+                color: rgb(28, 105, 116);
+            }
+
+            #ideaText {
+                font-family: 'IBM Plex Mono', monospace;
+                font-size: 3rem;
+                font-weight: 700;
+                margin-bottom: 25px;
+                color: rgb(56, 52, 52);
+
+                border-right: 2px solid rgba(255,255,255,.75);
+                text-align: center;
+                white-space: nowrap;
+                overflow: hidden;
+            }
+
+            #reroll {
+                background-color: rgb(28, 105, 116);
+                font-family: 'IBM Plex Mono', monospace;
+                border: none;
+                color: white;
+                padding: 15px 32px;
+                display: block;
+                font-size: 1.3rem;
+                width: 200px;
+                border-radius: 40px;
+                box-shadow: 1px 1px #3a3a3a;
+            }
+
+            #reroll:active {
+                background-color: rgb(20, 82, 92);
+                box-shadow: 1px 1px inset #3a3a3a;
+                transform: translate(2px, 1px);
+            }
+
+            @keyframes blinkTextCursor {
+                from{border-right-color: rgba(0, 0, 0, 0.75);}
+                to{border-right-color: transparent;}
+            }
+
+        </style>
+
+    </head>
+
+    <body>
+
+        <div class="wrapper">
+            <div id="haveYouTried">Have you tried...</div>
+            <div id="ideaText" class="anim-typewriter"></div>
+            <button id="reroll" type="button" onclick="getAndChangeActivity()">YEP</button>
+        </div>
+
+        <script>
+
+            let style = null;
+
+            let getAndChangeActivity = () => {
+                let activity = "";
+
+                fetch("https://idea.yxleow.workers.dev/activity")
+                .then((response) => {
+                    console.log(response)
+                    return response.json();
+                })
+                .then((data) => {
+                
+                    if (style === null) {
+                        style = document.createElement('style');
+                        document.getElementsByTagName('head')[0].appendChild(style);
+                    }
+                    
+                    let ideaTextElement = document.getElementById("ideaText");
+                    ideaTextElement.classList.remove("anim-typewriter");
+                    void ideaTextElement.offsetWidth;
+                    ideaTextElement.classList.add("anim-typewriter");
+                    
+                    let activity = data.activity;
+                    let length = activity.length + "ch";
+                    let speed = activity.length;
+                    let duration = 150 * speed + "ms";
+
+                    let keyFrameCss = `
+
+                    /* Animation */
+                    .anim-typewriter {
+                        animation: typewriter ${duration} steps(${speed}) 1s 1 normal both,
+                                    blinkTextCursor 500ms steps(${speed}) infinite normal;
+                    }
+
+                    @keyframes typewriter {
+                        from{
+                            width: 0;
+                        }
+
+                        to {
+                            width: ${length};
+                        }
+                    }`;
+
+                    style.type = 'text/css';
+                    style.innerHTML = keyFrameCss;
+
+                    document.getElementById("ideaText").innerText = activity;
+
+                })
+
+            }
+
+            getAndChangeActivity();
+
+        </script>
+
+    </body>
+</html>
